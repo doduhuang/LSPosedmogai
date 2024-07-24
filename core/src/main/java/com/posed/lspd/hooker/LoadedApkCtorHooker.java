@@ -25,8 +25,8 @@ import android.content.res.XResources;
 import android.util.Log;
 
 import com.debin.android.fun.XC_MethodHook;
-import com.debin.android.fun.XposedHelpers;
-import com.debin.android.fun.XposedInit;
+import com.debin.android.fun.XpoHelpers;
+import com.debin.android.fun.XpoInit;
 import com.posed.lspd.util.Hookers;
 
 // when a package is loaded for an existing process, trigger the callbacks as well
@@ -39,15 +39,15 @@ public class LoadedApkCtorHooker extends XC_MethodHook {
         try {
             LoadedApk loadedApk = (LoadedApk) param.thisObject;
             String packageName = loadedApk.getPackageName();
-            Object mAppDir = XposedHelpers.getObjectField(loadedApk, "mAppDir");
+            Object mAppDir = XpoHelpers.getObjectField(loadedApk, "mAppDir");
             Hookers.logD("LoadedApk#<init> ends: " + mAppDir);
 
-            if (!XposedInit.disableResources) {
+            if (!XpoInit.disableResources) {
                 XResources.setPackageNameForResDir(packageName, loadedApk.getResDir());
             }
 
             if (packageName.equals("android")) {
-                if (XposedInit.startsSystemServer) {
+                if (XpoInit.startsSystemServer) {
                     Hookers.logD("LoadedApk#<init> is android, skip: " + mAppDir);
                     return;
                 } else {
@@ -56,12 +56,12 @@ public class LoadedApkCtorHooker extends XC_MethodHook {
             }
 
             // mIncludeCode checking should go ahead of loadedPackagesInProcess added checking
-            if (!XposedHelpers.getBooleanField(loadedApk, "mIncludeCode")) {
+            if (!XpoHelpers.getBooleanField(loadedApk, "mIncludeCode")) {
                 Hookers.logD("LoadedApk#<init> mIncludeCode == false: " + mAppDir);
                 return;
             }
 
-            if (!XposedInit.loadedPackagesInProcess.add(packageName)) {
+            if (!XpoInit.loadedPackagesInProcess.add(packageName)) {
                 Hookers.logD("LoadedApk#<init> has been loaded before, skip: " + mAppDir);
                 return;
             }

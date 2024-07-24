@@ -22,15 +22,15 @@ package com.posed.lspd.util;
 
 import android.os.IBinder;
 
-import com.debin.android.fun.XposedHelpers;
+import com.debin.android.fun.XpoHelpers;
 
 public class InstallerVerifier {
 
     public static boolean sendBinderToManager(final ClassLoader classLoader, IBinder binder) {
         Utils.logI("Found FunXP Manager");
         try {
-            var clazz = XposedHelpers.findClass("com.posed.manager.Constants", classLoader);
-            var ret = (boolean) XposedHelpers.callStaticMethod(clazz, "setBinder",
+            var clazz = XpoHelpers.findClass("com.posed.manager.Constants", classLoader);
+            var ret = (boolean) XpoHelpers.callStaticMethod(clazz, "setBinder",
                     new Class[]{IBinder.class}, binder);
             Utils.logI("Send binder to FunXP Manager: " + ret);
             return ret;

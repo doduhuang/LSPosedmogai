@@ -27,7 +27,7 @@ package com.debin.android.fun;
  * @hide Xposed no longer hooks command-line tools, therefore this interface shouldn't be
  * implemented anymore.
  */
-public interface IXposedHookCmdInit extends IXposedMod {
+public interface IXpoCmdInit extends IXpoMod {
     /**
      * Called very early during startup of a command-line tool.
      *

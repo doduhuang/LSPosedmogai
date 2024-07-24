@@ -3,7 +3,7 @@ package com.posed.lspd.hooker;
 import android.os.Build;
 
 import com.debin.android.fun.XC_MethodHook;
-import com.debin.android.fun.XposedHelpers;
+import com.debin.android.fun.XpoHelpers;
 import com.posed.lspd.nativebridge.HookBridge;
 
 public class OpenDexFileHooker extends XC_MethodHook {
@@ -16,10 +16,10 @@ public class OpenDexFileHooker extends XC_MethodHook {
             }
         }
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P && classLoader == null) {
-            classLoader = XposedHelpers.class.getClassLoader();
+            classLoader = XpoHelpers.class.getClassLoader();
         }
         while (classLoader != null) {
-            if (classLoader == XposedHelpers.class.getClassLoader()) {
+            if (classLoader == XpoHelpers.class.getClassLoader()) {
                 HookBridge.setTrusted(param.getResult());
                 return;
             } else {

@@ -25,7 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import hidden.ByteBufferDexClassLoader;
 
-import static com.debin.android.fun.XposedBridge.TAG;
+import static com.debin.android.fun.XpoBridge.TAG;
 
 @SuppressWarnings("ConstantConditions")
 public final class LspModuleClassLoader extends ByteBufferDexClassLoader {

@@ -49,7 +49,7 @@ public class XRemotePreference implements SharedPreferences {
             Bundle output = serviceClient.requestRemotePreference(packageName, userId, callback.asBinder());
             callback.onUpdate(output);
         } catch (RemoteException e) {
-            XposedBridge.log(e);
+            XpoBridge.log(e);
         }
     }
 

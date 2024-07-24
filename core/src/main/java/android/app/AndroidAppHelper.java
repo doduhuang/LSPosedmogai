@@ -20,12 +20,12 @@
 
 package android.app;
 
-import static com.debin.android.fun.XposedHelpers.findClass;
-import static com.debin.android.fun.XposedHelpers.findFieldIfExists;
-import static com.debin.android.fun.XposedHelpers.findMethodExactIfExists;
-import static com.debin.android.fun.XposedHelpers.getObjectField;
-import static com.debin.android.fun.XposedHelpers.newInstance;
-import static com.debin.android.fun.XposedHelpers.setFloatField;
+import static com.debin.android.fun.XpoHelpers.findClass;
+import static com.debin.android.fun.XpoHelpers.findFieldIfExists;
+import static com.debin.android.fun.XpoHelpers.findMethodExactIfExists;
+import static com.debin.android.fun.XpoHelpers.getObjectField;
+import static com.debin.android.fun.XpoHelpers.newInstance;
+import static com.debin.android.fun.XpoHelpers.setFloatField;
 
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
@@ -38,7 +38,7 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 
 import com.debin.android.fun.XSharedPreferences;
-import com.debin.android.fun.XposedBridge;
+import com.debin.android.fun.XpoBridge;
 
 /**
  * Contains various methods for information about the current app.
@@ -71,7 +71,7 @@ public final class AndroidAppHelper {
 		try {
 			return newInstance(CLASS_RESOURCES_KEY, resDir, splitResDirs, overlayDirs, libDirs, displayId, overrideConfiguration, compatInfo);
 		} catch (Throwable t) {
-			XposedBridge.log(t);
+			XpoBridge.log(t);
 			return null;
 		}
 	}

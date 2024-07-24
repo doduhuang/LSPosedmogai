@@ -23,9 +23,9 @@ package android.content.res;
 import android.app.AndroidAppHelper;
 import android.util.DisplayMetrics;
 
-import com.debin.android.fun.IXposedHookInitPackageResources;
-import com.debin.android.fun.IXposedHookZygoteInit;
-import com.debin.android.fun.IXposedHookZygoteInit.StartupParam;
+import com.debin.android.fun.IXpoInitPackageResources;
+import com.debin.android.fun.IXpoZygoteInit;
+import com.debin.android.fun.IXpoZygoteInit.StartupParam;
 import com.debin.android.fun.callbacks.XC_InitPackageResources.InitPackageResourcesParam;
 import hidden.HiddenApiBridge;
 
@@ -41,8 +41,8 @@ public class XModuleResources extends Resources {
 	 * Creates a new instance.
 	 *
 	 * <p>This is usually called with {@link StartupParam#modulePath} from
-	 * {@link IXposedHookZygoteInit#initZygote} and {@link InitPackageResourcesParam#res} from
-	 * {@link IXposedHookInitPackageResources#handleInitPackageResources} (or {@code null} for
+	 * {@link IXpoZygoteInit#initZygote} and {@link InitPackageResourcesParam#res} from
+	 * {@link IXpoInitPackageResources#handleInitPackageResources} (or {@code null} for
 	 * system-wide replacements).
 	 *
 	 * @param path The path to the APK from which the resources should be loaded.

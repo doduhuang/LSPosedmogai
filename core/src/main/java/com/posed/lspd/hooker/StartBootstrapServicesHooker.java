@@ -21,8 +21,8 @@
 package com.posed.lspd.hooker;
 
 import com.debin.android.fun.XC_MethodHook;
-import com.debin.android.fun.XposedBridge;
-import com.debin.android.fun.XposedInit;
+import com.debin.android.fun.XpoBridge;
+import com.debin.android.fun.XpoInit;
 import com.debin.android.fun.callbacks.XC_LoadPackage;
 import com.posed.lspd.util.Hookers;
 
@@ -35,9 +35,9 @@ public class StartBootstrapServicesHooker extends XC_MethodHook {
         logD("SystemServer#startBootstrapServices() starts");
 
         try {
-            XposedInit.loadedPackagesInProcess.add("android");
+            XpoInit.loadedPackagesInProcess.add("android");
 
-            XC_LoadPackage.LoadPackageParam lpparam = new XC_LoadPackage.LoadPackageParam(XposedBridge.sLoadedPackageCallbacks);
+            XC_LoadPackage.LoadPackageParam lpparam = new XC_LoadPackage.LoadPackageParam(XpoBridge.sLoadedPackageCallbacks);
             lpparam.packageName = "android";
             lpparam.processName = "android"; // it's actually system_server, but other functions return this as well
             lpparam.classLoader = HandleSystemServerProcessHooker.systemServerCL;

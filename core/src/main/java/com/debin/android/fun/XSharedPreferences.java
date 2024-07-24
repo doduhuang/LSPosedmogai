@@ -160,7 +160,7 @@ public final class XSharedPreferences implements SharedPreferences {
      */
     public XSharedPreferences(String packageName, String prefFileName) {
         boolean newModule = false;
-        Set<String> modules = XposedInit.getLoadedModules();
+        Set<String> modules = XpoInit.getLoadedModules();
         for (String m : modules) {
             if (m.contains("/" + packageName + "-")) {
                 boolean isModule = false;

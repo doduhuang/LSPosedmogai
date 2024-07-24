@@ -24,13 +24,13 @@ import android.content.pm.ApplicationInfo;
 
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import com.debin.android.fun.IXposedHookLoadPackage;
+import com.debin.android.fun.IXpoLoadPackage;
 
 /**
  * This class is only used for internal purposes, except for the {@link LoadPackageParam}
  * subclass.
  */
-public abstract class XC_LoadPackage extends XCallback implements IXposedHookLoadPackage {
+public abstract class XC_LoadPackage extends XCallback implements IXpoLoadPackage {
     /**
      * Creates a new callback with default priority.
      *

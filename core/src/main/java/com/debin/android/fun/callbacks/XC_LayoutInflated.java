@@ -24,7 +24,7 @@ import android.content.res.XResources;
 import android.content.res.XResources.ResourceNames;
 import android.view.View;
 
-import com.debin.android.fun.XposedBridge;
+import com.debin.android.fun.XpoBridge;
 
 /**
  * Callback for hooking layouts. Such callbacks can be passed to {@link XResources#hookLayout}
@@ -55,7 +55,7 @@ public abstract class XC_LayoutInflated extends XCallback implements Comparable<
         /**
          * @hide
          */
-        public LayoutInflatedParam(XposedBridge.CopyOnWriteSortedSet<XC_LayoutInflated> callbacks) {
+        public LayoutInflatedParam(XpoBridge.CopyOnWriteSortedSet<XC_LayoutInflated> callbacks) {
             super(callbacks.getSnapshot(new XCallback[0]));
         }
 

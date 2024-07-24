@@ -21,8 +21,8 @@
 package com.posed.lspd.hooker;
 
 import com.debin.android.fun.XC_MethodHook;
-import com.debin.android.fun.XposedBridge;
-import com.debin.android.fun.XposedHelpers;
+import com.debin.android.fun.XpoBridge;
+import com.debin.android.fun.XpoHelpers;
 import com.posed.lspd.deopt.PrebuiltMethodsDeopter;
 import com.posed.lspd.util.Hookers;
 
@@ -39,8 +39,8 @@ public class HandleSystemServerProcessHooker extends XC_MethodHook {
             systemServerCL = Thread.currentThread().getContextClassLoader();
             // deopt methods in SYSTEMSERVERCLASSPATH
             PrebuiltMethodsDeopter.deoptSystemServerMethods(systemServerCL);
-            XposedBridge.hookAllMethods(
-                    XposedHelpers.findClass("com.android.server.SystemServer", systemServerCL),
+            XpoBridge.hookAllMethods(
+                    XpoHelpers.findClass("com.android.server.SystemServer", systemServerCL),
                     "startBootstrapServices", new StartBootstrapServicesHooker());
         } catch (Throwable t) {
             Hookers.logE("error when hooking systemMain", t);

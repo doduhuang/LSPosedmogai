@@ -26,9 +26,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.CompatibilityInfo;
 
 import com.android.internal.os.ZygoteInit;
-import com.debin.android.fun.XposedBridge;
-import com.debin.android.fun.XposedHelpers;
-import com.debin.android.fun.XposedInit;
+import com.debin.android.fun.XpoBridge;
+import com.debin.android.fun.XpoHelpers;
+import com.debin.android.fun.XpoInit;
 import com.posed.lspd.deopt.PrebuiltMethodsDeopter;
 import com.posed.lspd.hooker.CrashDumpHooker;
 import com.posed.lspd.hooker.HandleSystemServerProcessHooker;
@@ -43,18 +43,18 @@ public class Startup {
     @SuppressWarnings("deprecation")
     private static void startBootstrapHook(boolean isSystem) {
         Utils.logD("startBootstrapHook starts: isSystem = " + isSystem);
-        XposedHelpers.findAndHookMethod(Thread.class, "dispatchUncaughtException",
+        XpoHelpers.findAndHookMethod(Thread.class, "dispatchUncaughtException",
                 Throwable.class, new CrashDumpHooker());
         if (isSystem) {
-            XposedBridge.hookAllMethods(ZygoteInit.class,
+            XpoBridge.hookAllMethods(ZygoteInit.class,
                     "handleSystemServerProcess", new HandleSystemServerProcessHooker());
         } else {
             var hooker = new OpenDexFileHooker();
-            XposedBridge.hookAllMethods(DexFile.class, "openDexFile", hooker);
-            XposedBridge.hookAllMethods(DexFile.class, "openInMemoryDexFile", hooker);
-            XposedBridge.hookAllMethods(DexFile.class, "openInMemoryDexFiles", hooker);
+            XpoBridge.hookAllMethods(DexFile.class, "openDexFile", hooker);
+            XpoBridge.hookAllMethods(DexFile.class, "openInMemoryDexFile", hooker);
+            XpoBridge.hookAllMethods(DexFile.class, "openInMemoryDexFiles", hooker);
         }
-        XposedHelpers.findAndHookConstructor(LoadedApk.class,
+        XpoHelpers.findAndHookConstructor(LoadedApk.class,
                 ActivityThread.class, ApplicationInfo.class, CompatibilityInfo.class,
                 ClassLoader.class, boolean.class, boolean.class, boolean.class,
                 new LoadedApkCtorHooker());
@@ -63,8 +63,8 @@ public class Startup {
     public static void bootstrapXposed() {
         // Initialize the Xposed framework
         try {
-            startBootstrapHook(XposedInit.startsSystemServer);
-            XposedInit.loadModules();
+            startBootstrapHook(XpoInit.startsSystemServer);
+            XpoInit.loadModules();
         } catch (Throwable t) {
             Utils.logE("error during Xposed initialization", t);
         }
@@ -73,8 +73,8 @@ public class Startup {
     public static void initXposed(boolean isSystem, String processName, ILSPApplicationService service) {
         // init logger
         ApplicationServiceClient.Init(service, processName);
-        XposedBridge.initXResources();
-        XposedInit.startsSystemServer = isSystem;
+        XpoBridge.initXResources();
+        XpoInit.startsSystemServer = isSystem;
         PrebuiltMethodsDeopter.deoptBootMethods(); // do it once for secondary zygote
     }
 }

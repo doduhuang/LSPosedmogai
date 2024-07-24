@@ -11,7 +11,7 @@ import com.debin.android.fun.callbacks.XC_LoadPackage;
  * <p>This interface should be implemented by the module's main class. Xposed will take care of
  * registering it as a callback automatically.
  */
-public interface IXposedHookLoadPackage extends IXposedMod {
+public interface IXpoLoadPackage extends IXpoMod {
     /**
      * This method is called when an app is loaded. It's called very early, even before
      * {@link Application#onCreate} is called.
@@ -24,8 +24,8 @@ public interface IXposedHookLoadPackage extends IXposedMod {
 
     /** @hide */
     final class Wrapper extends XC_LoadPackage {
-        private final IXposedHookLoadPackage instance;
-        public Wrapper(IXposedHookLoadPackage instance) {
+        private final IXpoLoadPackage instance;
+        public Wrapper(IXpoLoadPackage instance) {
             this.instance = instance;
         }
         @Override

@@ -26,7 +26,7 @@ import com.posed.lspd.deopt.PrebuiltMethodsDeopter;
 
 import java.io.Serializable;
 
-import com.debin.android.fun.XposedBridge;
+import com.debin.android.fun.XpoBridge;
 
 /**
  * Base class for Xposed callbacks.
@@ -147,7 +147,7 @@ abstract public class XCallback {
             try {
                 param.callbacks[i].call(param);
             } catch (Throwable t) {
-                XposedBridge.log(t);
+                XpoBridge.log(t);
             }
         }
     }

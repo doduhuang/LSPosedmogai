@@ -23,5 +23,5 @@ package com.debin.android.fun;
 /**
  * Marker interface for Xposed modules. Cannot be implemented directly.
  */
-/* package */ interface IXposedMod {
+/* package */ interface IXpoMod {
 }

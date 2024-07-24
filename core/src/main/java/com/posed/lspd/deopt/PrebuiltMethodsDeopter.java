@@ -20,7 +20,7 @@
 
 package com.posed.lspd.deopt;
 
-import com.debin.android.fun.XposedHelpers;
+import com.debin.android.fun.XpoHelpers;
 import com.posed.lspd.nativebridge.HookBridge;
 import com.posed.lspd.util.Hookers;
 import com.posed.lspd.util.Utils;
@@ -48,9 +48,9 @@ public class PrebuiltMethodsDeopter {
                 Object[] params = new Object[caller.length - 2];
                 System.arraycopy(caller, 2, params, 0, params.length);
                 if ("<init>".equals(caller[1])) {
-                    method = XposedHelpers.findConstructorExactIfExists((String) caller[0], cl, params);
+                    method = XpoHelpers.findConstructorExactIfExists((String) caller[0], cl, params);
                 } else {
-                    method = XposedHelpers.findMethodExactIfExists((String) caller[0], cl, (String) caller[1], params);
+                    method = XpoHelpers.findMethodExactIfExists((String) caller[0], cl, (String) caller[1], params);
                 }
                 if (method != null) {
                     Hookers.logD("deoptimizing " + method);

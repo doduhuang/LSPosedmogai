@@ -22,8 +22,8 @@ package com.debin.android.fun;
 
 import static com.posed.lspd.core.ApplicationServiceClient.serviceClient;
 import static com.posed.lspd.deopt.PrebuiltMethodsDeopter.deoptResourceMethods;
-import static com.debin.android.fun.XposedHelpers.callMethod;
-import static com.debin.android.fun.XposedHelpers.findAndHookMethod;
+import static com.debin.android.fun.XpoHelpers.callMethod;
+import static com.debin.android.fun.XpoHelpers.findAndHookMethod;
 
 import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
@@ -55,8 +55,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import hidden.HiddenApiBridge;
 
-public final class XposedInit {
-    private static final String TAG = XposedBridge.TAG;
+public final class XpoInit {
+    private static final String TAG = XpoBridge.TAG;
     public static boolean startsSystemServer = false;
 
     public static volatile boolean disableResources = false;
@@ -75,7 +75,7 @@ public final class XposedInit {
             return;
         }
 
-        XposedHelpers.findAndHookMethod("android.app.ApplicationPackageManager", null, "getResourcesForApplication",
+        XpoHelpers.findAndHookMethod("android.app.ApplicationPackageManager", null, "getResourcesForApplication",
                 ApplicationInfo.class, new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) {
@@ -110,19 +110,19 @@ public final class XposedInit {
             createResourceMethods.add("getOrCreateResources");
         }
 
-        final Class<?> classActivityRes = XposedHelpers.findClassIfExists("android.app.ResourcesManager$ActivityResource", classGTLR.getClassLoader());
+        final Class<?> classActivityRes = XpoHelpers.findClassIfExists("android.app.ResourcesManager$ActivityResource", classGTLR.getClassLoader());
         var hooker = new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) {
                 // At least on OnePlus 5, the method has an additional parameter compared to AOSP.
                 Object activityToken = null;
                 try {
-                    final int activityTokenIdx = XposedHelpers.getParameterIndexByType(param.method, IBinder.class);
+                    final int activityTokenIdx = XpoHelpers.getParameterIndexByType(param.method, IBinder.class);
                     activityToken = param.args[activityTokenIdx];
                 } catch (NoSuchFieldError ignored) {
                 }
-                final int resKeyIdx = XposedHelpers.getParameterIndexByType(param.method, classResKey);
-                String resDir = (String) XposedHelpers.getObjectField(param.args[resKeyIdx], "mResDir");
+                final int resKeyIdx = XpoHelpers.getParameterIndexByType(param.method, classResKey);
+                String resDir = (String) XpoHelpers.getObjectField(param.args[resKeyIdx], "mResDir");
                 XResources newRes = cloneToXResources(param, resDir);
                 if (newRes == null) {
                     return;
@@ -132,19 +132,19 @@ public final class XposedInit {
                 synchronized (param.thisObject) {
                     ArrayList<Object> resourceReferences;
                     if (activityToken != null) {
-                        Object activityResources = XposedHelpers.callMethod(param.thisObject, "getOrCreateActivityResourcesStructLocked", activityToken);
+                        Object activityResources = XpoHelpers.callMethod(param.thisObject, "getOrCreateActivityResourcesStructLocked", activityToken);
                         //noinspection unchecked
-                        resourceReferences = (ArrayList<Object>) XposedHelpers.getObjectField(activityResources, "activityResources");
+                        resourceReferences = (ArrayList<Object>) XpoHelpers.getObjectField(activityResources, "activityResources");
                     } else {
                         //noinspection unchecked
-                        resourceReferences = (ArrayList<Object>) XposedHelpers.getObjectField(param.thisObject, "mResourceReferences");
+                        resourceReferences = (ArrayList<Object>) XpoHelpers.getObjectField(param.thisObject, "mResourceReferences");
                     }
                     if (activityToken == null || classActivityRes == null) {
                         resourceReferences.add(new WeakReference<>(newRes));
                     } else {
                         // Android S createResourcesForActivity()
-                        var activityRes = XposedHelpers.newInstance(classActivityRes);
-                        XposedHelpers.setObjectField(activityRes, "resources", new WeakReference<>(newRes));
+                        var activityRes = XpoHelpers.newInstance(classActivityRes);
+                        XpoHelpers.setObjectField(activityRes, "resources", new WeakReference<>(newRes));
                         resourceReferences.add(activityRes);
                     }
                 }
@@ -152,10 +152,10 @@ public final class XposedInit {
         };
 
         for (var createResourceMethod : createResourceMethods) {
-            XposedBridge.hookAllMethods(classGTLR, createResourceMethod, hooker);
+            XpoBridge.hookAllMethods(classGTLR, createResourceMethod, hooker);
         }
 
-        XposedHelpers.findAndHookMethod(TypedArray.class, "obtain", Resources.class, int.class,
+        XpoHelpers.findAndHookMethod(TypedArray.class, "obtain", Resources.class, int.class,
                 new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -168,7 +168,7 @@ public final class XposedInit {
                         XResources.XTypedArray newResult =
                                 new XResources.XTypedArray((Resources) param.args[0]);
                         int len = (int) param.args[1];
-                        Method resizeMethod = XposedHelpers.findMethodBestMatch(
+                        Method resizeMethod = XpoHelpers.findMethodBestMatch(
                                 TypedArray.class, "resize", int.class);
                         resizeMethod.setAccessible(true);
                         resizeMethod.invoke(newResult, len);
@@ -178,10 +178,10 @@ public final class XposedInit {
 
         // Replace system resources
         XResources systemRes = new XResources(
-                (ClassLoader) XposedHelpers.getObjectField(Resources.getSystem(), "mClassLoader"));
-        HiddenApiBridge.Resources_setImpl(systemRes, (ResourcesImpl) XposedHelpers.getObjectField(Resources.getSystem(), "mResourcesImpl"));
+                (ClassLoader) XpoHelpers.getObjectField(Resources.getSystem(), "mClassLoader"));
+        HiddenApiBridge.Resources_setImpl(systemRes, (ResourcesImpl) XpoHelpers.getObjectField(Resources.getSystem(), "mResourcesImpl"));
         systemRes.initObject(null);
-        XposedHelpers.setStaticObjectField(Resources.class, "mSystem", systemRes);
+        XpoHelpers.setStaticObjectField(Resources.class, "mSystem", systemRes);
 
         XResources.init(latestResKey);
     }
@@ -194,14 +194,14 @@ public final class XposedInit {
 
         // Replace the returned resources with our subclass.
         XResources newRes = new XResources(
-                (ClassLoader) XposedHelpers.getObjectField(param.getResult(), "mClassLoader"));
-        HiddenApiBridge.Resources_setImpl(newRes, (ResourcesImpl) XposedHelpers.getObjectField(param.getResult(), "mResourcesImpl"));
+                (ClassLoader) XpoHelpers.getObjectField(param.getResult(), "mClassLoader"));
+        HiddenApiBridge.Resources_setImpl(newRes, (ResourcesImpl) XpoHelpers.getObjectField(param.getResult(), "mResourcesImpl"));
         newRes.initObject(resDir);
 
         // Invoke handleInitPackageResources().
         if (newRes.isFirstLoad()) {
             String packageName = newRes.getPackageName();
-            XC_InitPackageResources.InitPackageResourcesParam resparam = new XC_InitPackageResources.InitPackageResourcesParam(XposedBridge.sInitPackageResourcesCallbacks);
+            XC_InitPackageResources.InitPackageResourcesParam resparam = new XC_InitPackageResources.InitPackageResourcesParam(XpoBridge.sInitPackageResourcesCallbacks);
             resparam.packageName = packageName;
             resparam.res = newRes;
             XCallback.callAll(resparam);
@@ -246,29 +246,29 @@ public final class XposedInit {
 
                 Class<?> moduleClass = mcl.loadClass(moduleClassName);
 
-                if (!IXposedMod.class.isAssignableFrom(moduleClass)) {
+                if (!IXpoMod.class.isAssignableFrom(moduleClass)) {
                     Log.e(TAG, "    This class doesn't implement any sub-interface of IXposedMod, skipping it");
                     continue;
                 }
 
                 final Object moduleInstance = moduleClass.newInstance();
 
-                if (moduleInstance instanceof IXposedHookZygoteInit) {
-                    IXposedHookZygoteInit.StartupParam param = new IXposedHookZygoteInit.StartupParam();
+                if (moduleInstance instanceof IXpoZygoteInit) {
+                    IXpoZygoteInit.StartupParam param = new IXpoZygoteInit.StartupParam();
                     param.modulePath = apk;
                     param.startsSystemServer = startsSystemServer;
-                    ((IXposedHookZygoteInit) moduleInstance).initZygote(param);
+                    ((IXpoZygoteInit) moduleInstance).initZygote(param);
                     count++;
                 }
 
-                if (moduleInstance instanceof IXposedHookLoadPackage) {
-                    XposedBridge.hookLoadPackage(new IXposedHookLoadPackage.Wrapper((IXposedHookLoadPackage) moduleInstance));
+                if (moduleInstance instanceof IXpoLoadPackage) {
+                    XpoBridge.hookLoadPackage(new IXpoLoadPackage.Wrapper((IXpoLoadPackage) moduleInstance));
                     count++;
                 }
 
-                if (moduleInstance instanceof IXposedHookInitPackageResources) {
+                if (moduleInstance instanceof IXpoInitPackageResources) {
                     hookResources();
-                    XposedBridge.hookInitPackageResources(new IXposedHookInitPackageResources.Wrapper((IXposedHookInitPackageResources) moduleInstance));
+                    XpoBridge.hookInitPackageResources(new IXpoInitPackageResources.Wrapper((IXpoInitPackageResources) moduleInstance));
                     count++;
                 }
             } catch (Throwable t) {
@@ -292,11 +292,11 @@ public final class XposedInit {
         }
         var librarySearchPath = sb.toString();
 
-        var initLoader = XposedInit.class.getClassLoader();
+        var initLoader = XpoInit.class.getClassLoader();
         var mcl = LspModuleClassLoader.loadApk(apk, file.preLoadedDexes, librarySearchPath, initLoader);
 
         try {
-            if (mcl.loadClass(XposedBridge.class.getName()).getClassLoader() != initLoader) {
+            if (mcl.loadClass(XpoBridge.class.getName()).getClassLoader() != initLoader) {
                 Log.e(TAG, "  Cannot load module: " + name);
                 Log.e(TAG, "  The Xposed API classes are compiled into the module's APK.");
                 Log.e(TAG, "  This may cause strange issues and must be fixed by the module developer.");

@@ -27,8 +27,8 @@ import android.os.IBinder;
 
 import com.debin.android.fun.XC_MethodHook;
 import com.debin.android.fun.XC_MethodReplacement;
-import com.debin.android.fun.XposedBridge;
-import com.debin.android.fun.XposedHelpers;
+import com.debin.android.fun.XpoBridge;
+import com.debin.android.fun.XpoHelpers;
 import com.debin.android.fun.callbacks.XC_LoadPackage;
 import com.posed.lspd.util.Hookers;
 import com.posed.lspd.util.MetaDataReader;
@@ -46,7 +46,7 @@ public class LoadedApkGetCLHooker extends XC_MethodHook {
 
     public LoadedApkGetCLHooker(LoadedApk loadedApk) {
         this.loadedApk = loadedApk;
-        unhook = XposedHelpers.findAndHookMethod(LoadedApk.class, "getClassLoader", this);
+        unhook = XpoHelpers.findAndHookMethod(LoadedApk.class, "getClassLoader", this);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class LoadedApkGetCLHooker extends XC_MethodHook {
                 packageName = "system";
             }
 
-            Object mAppDir = XposedHelpers.getObjectField(loadedApk, "mAppDir");
+            Object mAppDir = XpoHelpers.getObjectField(loadedApk, "mAppDir");
             ClassLoader classLoader = (ClassLoader) param.getResult();
             Hookers.logD("LoadedApk#getClassLoader ends: " + mAppDir + " -> " + classLoader);
 
@@ -79,7 +79,7 @@ public class LoadedApkGetCLHooker extends XC_MethodHook {
             }
 
             XC_LoadPackage.LoadPackageParam lpparam = new XC_LoadPackage.LoadPackageParam(
-                    XposedBridge.sLoadedPackageCallbacks);
+                    XpoBridge.sLoadedPackageCallbacks);
             lpparam.packageName = packageName;
             lpparam.processName = processName;
             lpparam.classLoader = classLoader;
@@ -119,7 +119,7 @@ public class LoadedApkGetCLHooker extends XC_MethodHook {
 
         if (xposedminversion > 92 || xposedsharedprefs) {
             Utils.logW("New modules detected, hook preferences");
-            XposedHelpers.findAndHookMethod("android.app.ContextImpl", lpparam.classLoader, "checkMode", int.class, new XC_MethodHook() {
+            XpoHelpers.findAndHookMethod("android.app.ContextImpl", lpparam.classLoader, "checkMode", int.class, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
                     if (((int) param.args[0] & 1/*Context.MODE_WORLD_READABLE*/) != 0) {
@@ -127,7 +127,7 @@ public class LoadedApkGetCLHooker extends XC_MethodHook {
                     }
                 }
             });
-            XposedHelpers.findAndHookMethod("android.app.ContextImpl", lpparam.classLoader, "getPreferencesDir", new XC_MethodReplacement() {
+            XpoHelpers.findAndHookMethod("android.app.ContextImpl", lpparam.classLoader, "getPreferencesDir", new XC_MethodReplacement() {
                 @Override
                 protected Object replaceHookedMethod(MethodHookParam param) {
                     return new File(serviceClient.getPrefsPath(lpparam.packageName));

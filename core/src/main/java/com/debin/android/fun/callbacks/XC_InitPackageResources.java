@@ -22,7 +22,7 @@ package com.debin.android.fun.callbacks;
 
 import android.content.res.XResources;
 
-import com.debin.android.fun.IXposedHookInitPackageResources;
+import com.debin.android.fun.IXpoInitPackageResources;
 
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -30,7 +30,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * This class is only used for internal purposes, except for the {@link InitPackageResourcesParam}
  * subclass.
  */
-public abstract class XC_InitPackageResources extends XCallback implements IXposedHookInitPackageResources {
+public abstract class XC_InitPackageResources extends XCallback implements IXpoInitPackageResources {
     /**
      * Creates a new callback with default priority.
      *
